@@ -1,0 +1,43 @@
+name: CI/CD Pipeline for User Service
+
+# Trigger this workflow on pushes and pull requests to the main branch
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+# Define the jobs that will run in this workflow
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Check out the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+
+      # Step 3: Navigate to user-service folder
+      - name: Navigate to user-service
+        working-directory: ./user-service
+        run: ls # Optional: List the files in the user-service directory for debugging
+
+      # Step 4: Install dependencies for the user-service
+      - name: Install dependencies
+        working-directory: ./user-service
+        run: npm install
+
+      # Step 5: Run tests for the user-service
+      - name: Run tests
+        working-directory: ./user-service
+        run: npm test
+        env:
+          NODE_ENV: test
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          MONGO_TEST_URI: ${{ secrets.MONGO_TEST_URI }}
