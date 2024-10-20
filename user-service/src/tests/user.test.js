@@ -6,9 +6,10 @@ const User = require('../models/User');
 
 
 describe('User Service API', () => {
+    const mongoUri = process.env.NODE_ENV === 'test' ? process.env.MONGO_TEST_URI : process.env.MONGO_URI;
     // Connect to MongoDB before all tests
     beforeAll(async () => {
-        await mongoose.connect(process.env.MONGO_URI);
+        await mongoose.connect(mongoUri);
     });
 
     // Clear the database before each test
