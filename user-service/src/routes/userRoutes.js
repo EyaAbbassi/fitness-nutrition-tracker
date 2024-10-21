@@ -1,22 +1,11 @@
-// src/routes/userRoutes.js
 const express = require('express');
-const router = express.Router();
-const User = require('../models/User');
+const { registerUser, loginUser, getUserProfile } = require('../controllers/userController');
+const authMiddleware = require('../middleware/authMiddleware');
 
-// Simple route to create a new user
-router.post('/register', async (req, res) => {
-    const { name, email, password } = req.body;
-    try {
-        const existingUser = await User.findOne({email});
-        if (existingUser) {
-            return res.status(400).send({ error: 'User already exists' });
-        }
-        const user = new User({ name, email, password });
-        await user.save();
-        res.status(201).send({ message: 'User registered successfully' });
-    } catch (error) {
-        res.status(500).send({ error: 'Failed to register user' });
-    }
-});
+const router = express.Router();
+
+router.post('/register', registerUser);
+router.post('/login', loginUser);
+router.get('/profile', authMiddleware, getUserProfile);
 
 module.exports = router;

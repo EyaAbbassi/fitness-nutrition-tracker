@@ -4,9 +4,9 @@ const mongoose = require('mongoose');
 const app = require('../app');
 const User = require('../models/User');
 
-
 describe('User Service API', () => {
     const mongoUri = process.env.NODE_ENV === 'test' ? process.env.MONGO_TEST_URI : process.env.MONGO_URI;
+    
     // Connect to MongoDB before all tests
     beforeAll(async () => {
         await mongoose.connect(mongoUri);
@@ -30,7 +30,14 @@ describe('User Service API', () => {
             .send(newUser);
 
         expect(response.status).toBe(201);
-        expect(response.body).toHaveProperty('message', 'User registered successfully');
+        expect(response.body).toHaveProperty('message', 'User registered.');
+        expect(response.body).toHaveProperty('userId');
+
+        // Verify the user was added to the database
+        const user = await User.findOne({ email: newUser.email });
+        expect(user).not.toBeNull();
+        expect(user.isVerified).toBe(true);
+        expect(user.verificationToken).not.toBeNull();
     });
 
     // Test for user registration with an existing email
@@ -52,7 +59,7 @@ describe('User Service API', () => {
             .send(existingUser);
 
         expect(response.status).toBe(400);
-        expect(response.body).toHaveProperty('error', 'User already exists');
+        expect(response.body).toHaveProperty('message', 'User already exists');
     });
 
     // Test for missing required fields
@@ -62,7 +69,7 @@ describe('User Service API', () => {
             .send({}); // Sending an empty request
 
         expect(response.status).toBe(500);
-        expect(response.body).toHaveProperty('error', 'Failed to register user');
+        expect(response.body).toHaveProperty('message', 'Server error');
     });
 
     // Close the database connection after all tests
