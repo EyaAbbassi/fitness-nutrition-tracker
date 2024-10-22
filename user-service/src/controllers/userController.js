@@ -17,9 +17,6 @@ const registerUser = async (req, res) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Generate verification token
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-
     // Create a new user
     const newUser = await User.create({
       name,
@@ -53,7 +50,7 @@ const loginUser = async (req, res) => {
     // Generate JWT token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    res.json({ token });
+    res.status(200).json({ token: token });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
